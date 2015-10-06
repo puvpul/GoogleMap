@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Contact Us</title>
+
+    <!--Styles for hidden divs-->
+    <style type="text/css">
+        .black_overlay {
+            display: none;
+            position: fixed;
+            top: 0%;
+            left: 0%;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 1001;
+            -moz-opacity: 0.8;
+            opacity: .80;
+            filter: alpha(opacity=80);
+        }
+
+        .white_content {
+            display: none;
+            position: fixed;
+            top: 25%;
+            left: 25%;
+            width: 50%;
+            height: 50%;
+            padding: 16px;
+            border: 16px solid orange;
+            background-color: white;
+            z-index: 1002;
+            overflow: auto;
+        }
+    </style>
+
+
+
+    <script src="jquery-1.10.2.js"></script>
+
+    <script type="text/javascript"
+        src="http://maps.googleapis.com/maps/api/js?sensor=false">
+    </script>
+
+    <script type="text/javascript">
+
+        function LoadMap(mapCanvasID, mapAddress) {
+
+            //The strategy here is to resolv the pased address to a geo-location code by using the google geocoder first. Upon success the map will be initilized, centred and shown. A failure message will be shown otherwise.
+
+            var geocoder = new google.maps.Geocoder();
+
+            geocoder.geocode({ 'address': mapAddress }, function (results, status) {
+
+                if (status != google.maps.GeocoderStatus.OK) {
+                    $('#' + mapCanvasID).html('<h4>Unable to resolv address</h4>')
+                }
+                else {
+                    var mapSettings = { zoom: 15, zoomControl: true, zoomControlOptions: { style: google.maps.ZoomControlStyle.SMALL }, scaleControl: true, center: results[0].geometry.location, mapTypeId: google.maps.MapTypeId.ROADMAP };
+
+                    var map = new google.maps.Map(document.getElementById(mapCanvasID), mapSettings);
+
+                    var marker = new google.maps.Marker({ position: results[0].geometry.location, map: map, title: mapAddress });
+                }
+            });
+        };
+
+    </script>
+
+    <script type="text/javascript">
+
+        var currentStreetAddress = '';
+
+        $(document).ready(function () {
+
+            $.ajax('/ClientInfoService.ashx', {
+                type: 'GET', dataType: 'JSON',
+                success: function (response) {
+
+                    //Please change the client id in the Global.asax > 
+                    //Session_Start to view the different client contacts and their address maps
+
+                    //Just load some client contact JSON data by calling a simple service
+                    if (!response.HasInfo) {
+                        $('#divControls').find(':input').prop('disabled', false);
+                    }
+                    else {
+                        $('#divControls').find(':input').prop('disabled', true);
+
+                        $('#txtFirstName').val(response.FirstName);
+                        $('#txtLastName').val(response.LastName);
+                        $('#txtStreetAddress').val(response.StreetAddress);
+                        $('#txtPhoneNo').val(response.PhoneNo);
+
+                        //Keeping the current address in global scope for reusing for popup
+                        currentStreetAddress = response.StreetAddress;
+
+                        //Call the map function with map viewer and address
+                        LoadMap('map_canvas', currentStreetAddress);
+                    }
+
+                }
+            });
+
+            $('#btnEnlargeMap').on('click', function () {
+
+                //Show the hidden divs
+                document.getElementById('fade').style.display = 'block';
+                document.getElementById('light').style.display = 'block';
+
+                //Call the map function with map viewer in the pop-up div and address 
+                LoadMap('map_canvas_popup', currentStreetAddress);
+            });
+
+        });
+    </script>
+
+
+</head>
+<body>
+
+    <div style="float: left" id="divControls">
+        <table>
+            <tr>
+                <td>First Name</td>
+                <td>
+                    <input type="text" id="txtFirstName" /></td>
+            </tr>
+            <tr>
+                <td>Last Name</td>
+                <td>
+                    <input type="text" id="txtLastName" /></td>
+            </tr>
+            <tr>
+                <td>Street Address</td>
+                <td>
+                    <input type="text" id="txtStreetAddress" /></td>
+            </tr>
+            <tr>
+                <td>Phone No</td>
+                <td>
+                    <input type="text" id="txtPhoneNo" /></td>
+
+            </tr>
+        </table>
+    </div>
+
+    <div style="float: right; width: 500px; height: 500px" id="map_canvas">
+    </div>
+
+    <!--Div to show the fixed map -->
+    <div style="float: right">
+        <button id="btnEnlargeMap">Enlarge Map</button>
+    </div>
+    <!--Div to show the fixed map -->
+
+    <!--Hidden  div to show the map as a pop up-->
+    <div id="light" class="white_content">
+        <!--Closes the div-->
+        <button onclick="document.getElementById('light').style.display='none';document.getElementById('fade').style.display='none'" style="position: absolute; top: 0px; right: 0px;">x</button>
+        <div style="width: 100%; height: 100%" id="map_canvas_popup">
+        </div>
+    </div>
+    <div id="fade" class="black_overlay"></div>
+    <!--Hidden  div to show the map as a pop up-->
+
+</body>
+</html>
