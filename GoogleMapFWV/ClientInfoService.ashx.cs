@@ -46,7 +46,7 @@ namespace GoogleMapFWV
     public static class RegistredClients
     {
         public static List<ClientInfo> Clients = new List<ClientInfo>() { 
-            new ClientInfo() { ClientID="C-001", FirstName = "Wakil", LastName = "Hassan", PhoneNo = "0061-8874-38775", StreetAddress = "391 Murray rd, Preston, Victoria, Australia" } ,
+            new ClientInfo() { ClientID="C-001", FirstName = "Wakil", LastName = "Hassan", PhoneNo = "0061-8874-38775", StreetAddress = "10 Nariel St, St Marys, NSW 2760, Australia" } ,
             new ClientInfo() { ClientID="C-002", FirstName = "Muhammad", LastName = "Kashem", PhoneNo = "880-1191-352163", StreetAddress = "Dhanmondi Dhaka" } ,
             new ClientInfo() { ClientID="C-003", FirstName = "Unknown", LastName = String.Empty, PhoneNo = "000-0000-00000", StreetAddress = "Purai Vuaa address" } 
         };
